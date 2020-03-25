@@ -1,0 +1,49 @@
+{
+  "plugins": ["react", "jest"],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "env": {
+    "es6": true,
+    "browser": true,
+    "node": true,
+    "mocha": true,
+    "jest/globals": true
+  },
+  "extends": ["airbnb"],
+  "rules": {
+    "label-has-for": "off",
+    "react/jsx-filename-extension": "off",
+    "react/require-default-props": "off",
+    "jsx-a11y/label-has-for": "off",
+    "object-curly-newline": "off",
+    "no-nested-ternary": "off",
+    "comma-dangle": "off",
+    "no-use-before-define": "off",
+    "no-throw-literal": "off",
+    "jsx-a11y/anchor-is-valid": "off",
+    "brace-style": [2, "stroustrup", { "allowSingleLine": false }],
+    "max-len": 0,
+    "no-trailing-spaces": 0,
+    "linebreak-style": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "function-paren-newline": "off",
+    "import/prefer-default-export": "off"
+  },
+  "settings": {
+    "react": {
+      "version": "16.8.6"
+    },
+    "import/resolver": {
+      "webpack": {
+        "config": "webpack.config.js"
+      }
+    }
+  }
+}
