@@ -30,16 +30,28 @@
         flex: 1;
         display: flex;
 
-        .col {
-          flex: 1;
-          border: 1px solid #eee;
+        .empty {
+          background: #233c61;
         }
 
-        .col-hasmine {
-          background-image: url("./assets/bomb.svg");
-          background-position: center;
-          background-size: 30px 30px;
-          background-repeat: no-repeat;
+        .col {
+          display: flex;
+          flex: 1;
+          border: 1px solid #eee;
+          color: white;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          cursor: pointer;
+
+          .mine {
+            background-image: url("./assets/bomb.svg");
+            background-position: center;
+            background-size: 30px 30px;
+            background-repeat: no-repeat;
+            width: 100%;
+            height: 100%;
+          }
         }
       }
     }

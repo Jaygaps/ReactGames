@@ -6,6 +6,18 @@ const gameBoard = {
   mines: 10
 };
 
+function findNeighbours(x, y, callback) {
+  for (let i = -1; i < 2; i++) {
+    for (let j = -1; j < 2; j++) {
+      const row = i + y;
+      const col = j + x;
+
+      if (row >= 0 && row < 10 && col >= 0 && col < 10) {
+        callback(x + j, y + i);
+      }
+    }
+  }
+}
 function Minesweeper() {
   const [board, setBoard] = useState([]);
 
@@ -15,10 +27,12 @@ function Minesweeper() {
       initialBoard.push([]);
       for (let j = 0; j < gameBoard.dimensions; j++) {
         initialBoard[i].push({
-          x: j,
-          y: i,
+          x: i,
+          y: j,
           hasMine: false,
-          isOpen: false
+          isOpen: false,
+          count: 0,
+          isEmpty: false
         });
       }
     }
@@ -34,9 +48,55 @@ function Minesweeper() {
       initialBoard[randomRowMine][randomColMine].hasMine = true;
     }
 
+    for (let row = 0; row < 10; row++) {
+      for (let col = 0; col < 10; col++) {
+        if (!initialBoard[row][col].hasMine) {
+          let mine = 0;
+          findNeighbours(row, col, (a, b) => {
+            if (initialBoard[a][b].hasMine) {
+              mine++;
+            }
+          });
+
+          if (mine === 0) {
+            initialBoard[row][col].isEmpty = true;
+          }
+
+          initialBoard[row][col].count = mine;
+        }
+      }
+    }
+
     const boardData = [...initialBoard];
     setBoard(boardData);
   }, []);
+
+  function revealEmpty(cell, board) {
+    findNeighbours(cell.x, cell.y, (a, b) => {
+      if (
+        (!board[a][b].isEmpty || !board[a][b].hasMine) &&
+        !board[a][b].isRevealed
+      ) {
+        board[a][b].isRevealed = true;
+
+        if (board[a][b].isEmpty) {
+          revealEmpty(board[a][b], board);
+        }
+      }
+    });
+    return board;
+  }
+
+  function openCell(cell) {
+    let selectedBoard = [...board];
+    if (selectedBoard[cell.x][cell.y].isRevealed) return null;
+    selectedBoard[cell.x][cell.y].isOpen = true;
+
+    if (selectedBoard[cell.x][cell.y].isEmpty) {
+      selectedBoard = revealEmpty(cell, selectedBoard);
+    }
+    setBoard(selectedBoard);
+  }
 
   console.log(board);
   return (
@@ -49,7 +109,19 @@ function Minesweeper() {
               <div className="row">
                 {row.map(col => {
                   return (
-                    <div className={`col ${col.hasMine && "col-hasmine"}`} />
+                    <div
+                      className={`col ${col.count === 0 &&
+                        col.isRevealed &&
+                        "empty"}`}
+                      onClick={() => openCell(col)}
+                    >
+                      {!col.hasMine && col.isOpen && col.count !== 0
+                        ? col.count
+                        : col.isRevealed && !col.hasMine && col.count !== 0
+                        ? col.count
+                        : col.isOpen &&
+                          col.hasMine && <span className="mine" />}
+                    </div>
                   );
                 })}
               </div>
