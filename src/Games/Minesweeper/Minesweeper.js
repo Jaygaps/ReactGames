@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
+import { bounceIn } from "react-animations";
+import styled, { keyframes } from "styled-components";
+
 import "./Minesweeper.scss";
+
+const pulseAnimation = keyframes`${bounceIn}`;
+
+const PulseDiv = styled.div`
+  animation: 2s ${pulseAnimation};
+`;
 
 const gameBoard = {
   dimensions: 10,
@@ -20,6 +29,7 @@ function findNeighbours(x, y, callback) {
 }
 function Minesweeper() {
   const [board, setBoard] = useState([]);
+  const [flagCount, setFlagCount] = useState(10);
 
   useEffect(() => {
     let initialBoard = [];
@@ -31,8 +41,9 @@ function Minesweeper() {
           y: j,
           hasMine: false,
           isOpen: false,
-          count: 0,
-          isEmpty: false
+          isEmpty: false,
+          hasFlag: false,
+          count: 0
         });
       }
     }
@@ -48,8 +59,8 @@ function Minesweeper() {
       initialBoard[randomRowMine][randomColMine].hasMine = true;
     }
 
-    for (let row = 0; row < 10; row++) {
-      for (let col = 0; col < 10; col++) {
+    for (let row = 0; row < gameBoard.dimensions; row++) {
+      for (let col = 0; col < gameBoard.dimensions; col++) {
         if (!initialBoard[row][col].hasMine) {
           let mine = 0;
           findNeighbours(row, col, (a, b) => {
@@ -89,12 +100,25 @@ function Minesweeper() {
 
   function openCell(cell) {
     let selectedBoard = [...board];
+    if (selectedBoard[cell.x][cell.y].hasFlag) return null;
     if (selectedBoard[cell.x][cell.y].isRevealed) return null;
     selectedBoard[cell.x][cell.y].isOpen = true;
 
     if (selectedBoard[cell.x][cell.y].isEmpty) {
       selectedBoard = revealEmpty(cell, selectedBoard);
     }
+    setBoard(selectedBoard);
+  }
+
+  function openContextMenu(cell, e) {
+    e.preventDefault();
+    let selectedBoard = [...board];
+    if (selectedBoard[cell.x][cell.y].hasFlag) {
+      selectedBoard[cell.x][cell.y].hasFlag = false;
+    } else {
+      selectedBoard[cell.x][cell.y].hasFlag = true;
+    }
+
     setBoard(selectedBoard);
   }
 
@@ -114,13 +138,17 @@ function Minesweeper() {
                         col.isRevealed &&
                         "empty"}`}
                       onClick={() => openCell(col)}
+                      onContextMenu={e => openContextMenu(col, e)}
                     >
-                      {!col.hasMine && col.isOpen && col.count !== 0
-                        ? col.count
-                        : col.isRevealed && !col.hasMine && col.count !== 0
-                        ? col.count
-                        : col.isOpen &&
-                          col.hasMine && <span className="mine" />}
+                      {!col.hasMine && col.isOpen && col.count !== 0 ? (
+                        <PulseDiv>{col.count}</PulseDiv>
+                      ) : col.isRevealed && !col.hasMine && col.count !== 0 ? (
+                        <PulseDiv>{col.count}</PulseDiv>
+                      ) : col.isOpen && col.hasMine ? (
+                        <span className="mine" />
+                      ) : (
+                        col.hasFlag && <PulseDiv className="flag"></PulseDiv>
+                      )}
                     </div>
                   );
                 })}
